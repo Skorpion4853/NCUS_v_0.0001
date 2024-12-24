@@ -10,6 +10,18 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, GenerationConfig,
 import numpy as np
 import pyvts
 import asyncio
+import sys
+
+import keyboard
+from PyQt5.uic.Compiler.qtproxies import QtWidgets
+from click import prompt
+from pynput.keyboard import Key, Listener
+
+from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtGui import QFontDatabase
+from PyQt5 import QtCore, QtGui, QtWidgets
+from test_ui import Ui_MainWindow
+
 stop_words = set(stopwords.words('russian'))
 
 pipe = pipeline("text2text-generation", model="SiberiaSoft/SiberianFredT5-instructor")
@@ -65,8 +77,34 @@ def lemmatiz(text, lst):
 
 myvts = pyvts.vts()
 asyncio.run(connect_auth(myvts))
+
+class Test(QMainWindow):
+    def __init__(self):
+        super(Test, self).__init__()
+
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+
+        self.ui.btn_snd.clicked.connect(lambda: self.snd())
+
+    def snd(self):
+        self.ui.chat.setText('user -> ' + self.ui.msg.toPlainText() + '\n' + self.ui.chat.toPlainText())
+    def snd_neuro(self, message):
+        self.ui.chat.setText('neuroSama -> ' + message + '\n' + self.ui.chat.toPlainText())
+
+if __name__== "__main__":
+    app = QApplication(sys.argv)
+    myapp = Test()
+    myapp.show()
+    sys.exit(app.exec())
+
 while 1:
-    neuro_answ = (generate(input("Введите промпт и фразу: ")))
+    '''
+    myapp.snd_neuro('Введите промпт и фразу ')
+    keyboard.wait('enter')
+    prompt = myapp.ui.msg.toPlainText()
+    '''
+    neuro_answ = (generate(input('Введите промпт: ')))
     user_list = []
 
     # пред-обработка данных для прогнозирования эмоции
@@ -87,7 +125,11 @@ while 1:
     Emotion = np.where(y_pred[0] == y_pred.max())[0][0]
     asyncio.run(trigger(myvts, Emotion))
 
-    # Озвучивание ответаЫ
+    # Озвучивание ответа
+    print(neuro_answ[17:])
     engine.say(neuro_answ[17:])
     engine.runAndWait()
     print("====================")
+
+
+
