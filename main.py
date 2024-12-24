@@ -5,6 +5,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pyttsx3
+import os
 import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, GenerationConfig, pipeline
 import numpy as np
@@ -88,48 +89,43 @@ class Test(QMainWindow):
         self.ui.btn_snd.clicked.connect(lambda: self.snd())
 
     def snd(self):
-        self.ui.chat.setText('user -> ' + self.ui.msg.toPlainText() + '\n' + self.ui.chat.toPlainText())
-    def snd_neuro(self, message):
-        self.ui.chat.setText('neuroSama -> ' + message + '\n' + self.ui.chat.toPlainText())
+        print('Промпт: '+self.ui.msg.toPlainText())
+        neuro_answ = (generate(self.ui.msg.toPlainText()))
+        user_list = []
+
+        # пред-обработка данных для прогнозирования эмоции
+        lemmatiz(neuro_answ[17:], user_list)
+
+        stop_words = set(stopwords.words('russian'))
+        tokens = word_tokenize(user_list[0].replace("'", "").replace("\n", ""), 'russian')
+        clear_user_input = []
+        for word in tokens:
+            if word not in stop_words:
+                clear_user_input.append(word)
+        user_x = token.texts_to_sequences(clear_user_input)
+        user_x = pad_sequences(user_x, maxlen=15690, padding='post', truncating='post')
+        user_x = token.texts_to_matrix([clear_user_input])
+
+        # Прогназирование эмоции
+        y_pred = emot_model.predict(user_x)
+        Emotion = np.where(y_pred[0] == y_pred.max())[0][0]
+        asyncio.run(trigger(myvts, Emotion))
+
+        # Озвучивание ответа
+        self.ui.chat.setPlainText('nueroSama -> ' + neuro_answ[17:] + '\n' + self.ui.chat.toPlainText())
+        self.ui.chat.setPlainText('user -> ' + self.ui.msg.toPlainText() + '\n' + self.ui.chat.toPlainText())
+        print(neuro_answ[17:])
+        engine.say(neuro_answ[17:])
+        engine.runAndWait()
+        print("====================")
 
 if __name__== "__main__":
     app = QApplication(sys.argv)
     myapp = Test()
     myapp.show()
-    sys.exit(app.exec())
+    app.exec()
 
-while 1:
-    '''
-    myapp.snd_neuro('Введите промпт и фразу ')
-    keyboard.wait('enter')
-    prompt = myapp.ui.msg.toPlainText()
-    '''
-    neuro_answ = (generate(input('Введите промпт: ')))
-    user_list = []
 
-    # пред-обработка данных для прогнозирования эмоции
-    lemmatiz(neuro_answ[17:], user_list)
-
-    stop_words = set(stopwords.words('russian'))
-    tokens = word_tokenize(user_list[0].replace("'", "").replace("\n", ""), 'russian')
-    clear_user_input = []
-    for word in tokens:
-        if word not in stop_words:
-            clear_user_input.append(word)
-    user_x = token.texts_to_sequences(clear_user_input)
-    user_x = pad_sequences(user_x, maxlen=15690, padding='post', truncating='post')
-    user_x = token.texts_to_matrix([clear_user_input])
-
-    # Прогназирование эмоции
-    y_pred = emot_model.predict(user_x)
-    Emotion = np.where(y_pred[0] == y_pred.max())[0][0]
-    asyncio.run(trigger(myvts, Emotion))
-
-    # Озвучивание ответа
-    print(neuro_answ[17:])
-    engine.say(neuro_answ[17:])
-    engine.runAndWait()
-    print("====================")
 
 
 

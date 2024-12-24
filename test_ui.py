@@ -15,44 +15,40 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QMainWindow, QPushButton, QSizePolicy,
-    QTextBrowser, QTextEdit, QWidget)
+from PySide6.QtWidgets import (QApplication, QMainWindow, QPlainTextEdit, QPushButton,
+    QSizePolicy, QTextEdit, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(300, 470)
+        MainWindow.resize(421, 561)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
-        MainWindow.setMinimumSize(QSize(300, 470))
+        MainWindow.setMinimumSize(QSize(421, 561))
         MainWindow.setCursor(QCursor(Qt.CursorShape.IBeamCursor))
         MainWindow.setAcceptDrops(False)
         MainWindow.setStyleSheet(u"QWidget{\n"
 "	color: white;\n"
 "	background-color: #121212;\n"
 "	font-family: Rubik;\n"
-"	font-size: 12pt;\n"
-"	font-weight: 600;\n"
+"	font-size: 8pt;\n"
+"	font-weight: 200;\n"
 "}")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.chat = QTextBrowser(self.centralwidget)
+        self.chat = QPlainTextEdit(self.centralwidget)
         self.chat.setObjectName(u"chat")
-        self.chat.setGeometry(QRect(9, 9, 281, 390))
+        self.chat.setGeometry(QRect(10, 9, 401, 461))
         self.chat.setMinimumSize(QSize(260, 390))
         self.chat.setStyleSheet(u"")
-        self.chat.setTabChangesFocus(False)
-        self.chat.setUndoRedoEnabled(False)
-        self.chat.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
         self.chat.setReadOnly(True)
-        self.chat.setOverwriteMode(True)
         self.msg = QTextEdit(self.centralwidget)
         self.msg.setObjectName(u"msg")
-        self.msg.setGeometry(QRect(9, 405, 210, 50))
+        self.msg.setGeometry(QRect(10, 480, 311, 71))
         sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
@@ -71,7 +67,7 @@ class Ui_MainWindow(object):
         self.msg.setReadOnly(False)
         self.btn_snd = QPushButton(self.centralwidget)
         self.btn_snd.setObjectName(u"btn_snd")
-        self.btn_snd.setGeometry(QRect(224, 405, 61, 50))
+        self.btn_snd.setGeometry(QRect(330, 480, 81, 71))
         self.btn_snd.setMinimumSize(QSize(50, 50))
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -91,8 +87,8 @@ class Ui_MainWindow(object):
 "hr { height: 1px; border-width: 0; }\n"
 "li.unchecked::marker { content: \"\\2610\"; }\n"
 "li.checked::marker { content: \"\\2612\"; }\n"
-"</style></head><body style=\" font-family:'Rubik'; font-size:12pt; font-weight:600; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Type anything...</p></body></html>", None))
+"</style></head><body style=\" font-family:'Rubik'; font-size:8pt; font-weight:200; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:600;\">Type anything...</span></p></body></html>", None))
         self.btn_snd.setText(QCoreApplication.translate("MainWindow", u"Send", None))
     # retranslateUi
 
