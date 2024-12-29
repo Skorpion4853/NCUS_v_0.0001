@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pymystem3 import Mystem
 import tensorflow as tf
 import pickle
@@ -5,27 +6,23 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pyttsx3
-import os
 import torch
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, GenerationConfig, pipeline
+import transformers
 import numpy as np
 import pyvts
 import asyncio
 import sys
-
-import keyboard
 from PyQt5.uic.Compiler.qtproxies import QtWidgets
 from click import prompt
 from pynput.keyboard import Key, Listener
-
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtGui import QFontDatabase
 from PyQt5 import QtCore, QtGui, QtWidgets
 from test_ui import Ui_MainWindow
+import keyboard
 
 stop_words = set(stopwords.words('russian'))
 
-pipe = pipeline("text2text-generation", model="SiberiaSoft/SiberianFredT5-instructor")
 
 # Настройки двигателя для озвучки текста
 engine = pyttsx3.init()
@@ -33,9 +30,10 @@ voices = engine.getProperty('voices')
 engine.setProperty('rate', 200)
 engine.setProperty('voice', voices[2].id)
 
-tokenizer = AutoTokenizer.from_pretrained("SiberiaSoft/SiberianFredT5-instructor")
-model = AutoModelForSeq2SeqLM.from_pretrained("SiberiaSoft/SiberianFredT5-instructor")
-model.eval()
+use_cuda = torch.cuda.is_available()
+device = torch.device("cuda" if use_cuda else "cpu")
+t5_tokenizer = transformers.GPT2Tokenizer.from_pretrained("SiberiaSoft/SiberianPersonaFred-2")
+t5_model = transformers.T5ForConditionalGeneration.from_pretrained("SiberiaSoft/SiberianPersonaFred-2")
 emot_model = tf.keras.models.load_model('model_classifire.keras')
 with open('tokenizer.pickle', 'rb') as handle:
     token = pickle.load(handle)
@@ -57,23 +55,34 @@ async def trigger(myvts, emotion):
     await myvts.request(send_hotkey_request)  # send request to play 'My Animation 1'
     await myvts.close()
 
-def generate(prompt):
-    data = tokenizer('<SC6>' + prompt + '\nОтвет: <extra_id_0>', return_tensors="pt")
-    data = {k: v.to(model.device) for k, v in data.items()}
-    output_ids = model.generate(
-        **data, do_sample=True, temperature=0.2, max_new_tokens=512, top_p=0.95, top_k=5, repetition_penalty=1.03,
-        no_repeat_ngram_size=2
-    )[0]
-    out = tokenizer.decode(output_ids.tolist())
-    out = out.replace("<s>", "").replace("</s>", "")
-    return out
 
+dialog = []
+def generate(prompt):
+    global dialog
+    msg = prompt
+    if len(msg) == 0:
+        return "<System>: Error! Promt не должен быть пустым"
+    msg = msg[0].upper() + msg[1:]
+    dialog.append('Ты: ' + msg)
+    # В начале ставится промпт персонажа.
+    prompt = "<SC6>Меня зовут NCUS. Я милая, нейронная, аниме девочка. Я работаю начинающим маскотом. Я очень умная, милая, добрая и несерьезная. Я люблю кофе, энергетики и конечно котиков. Мой создатель был идиотом, поэтому я могу иногда накидывать базы. Целей в жизни у меня нету и вовсе я работаю только когда работает программа. Продолжи диалог:" + '\n'.join(
+        dialog) + '\nЯ: <extra_id_0>'
+    input_ids = t5_tokenizer(prompt, return_tensors='pt').input_ids
+    out_ids = t5_model.generate(input_ids=input_ids.to(device), do_sample=True, temperature=0.9, max_new_tokens=512,
+                                top_p=0.85,
+                                top_k=2, repetition_penalty=1.2)
+    t5_output = t5_tokenizer.decode(out_ids[0][1:])
+    if '</s>' in t5_output:
+        t5_output = t5_output[:t5_output.find('</s>')].strip()
+    t5_output = t5_output.replace('<extra_id_0>', '').strip()
+    t5_output = t5_output.split('Собеседник')[0].strip()
+    dialog.append('Я: ' + t5_output)
+    return t5_output
 
 def lemmatiz(text, lst):
     m = Mystem()
     lemmas = m.lemmatize(text)
     lst.append("".join(lemmas))
-
 
 
 myvts = pyvts.vts()
@@ -94,7 +103,7 @@ class Test(QMainWindow):
         user_list = []
 
         # пред-обработка данных для прогнозирования эмоции
-        lemmatiz(neuro_answ[17:], user_list)
+        lemmatiz(neuro_answ, user_list)
 
         stop_words = set(stopwords.words('russian'))
         tokens = word_tokenize(user_list[0].replace("'", "").replace("\n", ""), 'russian')
@@ -112,10 +121,10 @@ class Test(QMainWindow):
         asyncio.run(trigger(myvts, Emotion))
 
         # Озвучивание ответа
-        self.ui.chat.setPlainText('nueroSama -> ' + neuro_answ[17:] + '\n' + self.ui.chat.toPlainText())
-        self.ui.chat.setPlainText('user -> ' + self.ui.msg.toPlainText() + '\n' + self.ui.chat.toPlainText())
-        print(neuro_answ[17:])
-        engine.say(neuro_answ[17:])
+        self.ui.chat.setPlainText('nueroSama -> ' + neuro_answ + '\n' + self.ui.chat.toPlainText())
+        self.ui.chat.setPlainText('user -> ' + self.ui.msg.toPlainText() + '\n' + self.ui.chat.toPlainText()+ '\n')
+        print(neuro_answ)
+        engine.say(neuro_answ)
         engine.runAndWait()
         print("====================")
 
@@ -124,8 +133,3 @@ if __name__== "__main__":
     myapp = Test()
     myapp.show()
     app.exec()
-
-
-
-
-
