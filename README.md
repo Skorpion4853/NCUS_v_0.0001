@@ -1,25 +1,25 @@
 # Описание
 Ветка ЧАЙХАНА создана специально для реструктурированной версии проекта с GUI
 # Что где находится
-funcs.py - все функции проекта
-gui_sample.py - пример реализации GUI
-nogui_sample - пример реализации без GUI
-test.ui - GUI PyQt 
-test_ui.py - GUI PyQt -> .py
+funcs.py - все функции проекта<br />
+gui_sample.py - пример реализации GUI<br />
+nogui_sample - пример реализации без GUI<br />
+test.ui - GUI PyQt <br />
+test_ui.py - GUI PyQt -> .py<br />
 pyvts_token.txt - Токен для VTubeStudio
 # requirments
-pip==24.3.1
-python==3.12
-pymystem3==0.2.0
-tensorflow==2.18.0
-nltk==3.9.1
-pyttsx3==2.98
-torch==2.5.1
-transformers==4.47.1
-numpy==2.0.2
-pyvts==0.3.3
-PyQt5==5.15.11
-pynput==1.7.7
-PySide6==6.8.1
-keyboard==0.13.5
+pip==24.3.1<br />
+python==3.12<br />
+pymystem3==0.2.0<br />
+tensorflow==2.18.0<br />
+nltk==3.9.1<br />
+pyttsx3==2.98<br />
+torch==2.5.1<br />
+transformers==4.47.1<br />
+numpy==2.0.2<br />
+pyvts==0.3.3<br />
+PyQt5==5.15.11<br />
+pynput==1.7.7<br />
+PySide6==6.8.1<br />
+keyboard==0.13.5<br />
 click==8.1.8
