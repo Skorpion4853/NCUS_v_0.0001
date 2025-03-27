@@ -7,9 +7,6 @@ nogui_sample - пример реализации без GUI
 test.ui - GUI PyQt 
 test_ui.py - GUI PyQt -> .py
 pyvts_token.txt - Токен для VTubeStudio
-# Эти файлы бесполезны (legacy из master ветки)
-main.py
-test.py
 # requirments
 pip==24.3.1
 python==3.12
