@@ -1,41 +1,11 @@
 import pandas as pd
 import numpy as np
-#import torch.nn as nn
+import torch.nn as nn
 
 
 
 # Загружаем датасет
-train_df = pd.read_csv('dirty_train.csv')
-
-print(train_df)
-
-# Обрабатываем датасет
-def clear_dataset(data):
-    ids = []
-    incorrect_columns = ['author', 'subreddit', 'link_id',
-                         'id', 'parent_id', 'created_utc',
-                         'rater_id']
-    correct_columns = ['ru_text', 'text', 'anger', 'fear', 'excitement', 'sadness', 'optimism', 'neutral']
-    data.drop(incorrect_columns, axis=1, inplace=True)
-    columns = data.columns.tolist()
-
-    for column in columns:
-        if column not in correct_columns:
-            indexes = data[ data[column] == 1].index
-            data.drop(indexes, inplace=True)
-
-    for column in columns:
-        if column not in correct_columns:
-            data.drop(column, axis=1, inplace=True)
-
-
-    return data
-
-clean_dataset = clear_dataset(train_df)
-print(f'Columns:\n{clean_dataset.columns}\nlen: {len(clean_dataset)}')
-clean_dataset.to_csv('train.csv', index=False)
-
-'''
+train_df = pd.read_csv('train.csv')
 
 # Создаем модель
 class Emotion_Classifier(nn.Module):
@@ -56,5 +26,3 @@ model.train()
 
 for epoch in range(epochs):
     pass
-
-'''
