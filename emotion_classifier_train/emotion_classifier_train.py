@@ -44,10 +44,10 @@ if __name__ == '__main__':
 
     ### Обучаем + сохраняем результат (модель + веса) - нихрена он не обучился
     train_data = EmotionDataset(train_df.loc[:, 'ru_text'].to_numpy(),train_df.iloc[:, 2:8].to_numpy(),tokenizer, max_len)    #анекдот дня: заходит как-то iloc и loc в бар
-    train_dataloader = data.DataLoader(train_data, batch_size=4)           # iloc говорит loc'у: "биба я название столбца не чувствую"
+    train_dataloader = data.DataLoader(train_data, batch_size=64)           # iloc говорит loc'у: "биба я название столбца не чувствую"
                                                                                                         # а loc ему в ответ "боба у тебя его нет"
     val_data = EmotionDataset(val_df.loc[:, 'ru_text'].to_numpy(),val_df.iloc[:, 2:8].to_numpy(),tokenizer, max_len)
-    val_dataloader = data.DataLoader(val_data, batch_size=1)
+    val_dataloader = data.DataLoader(val_data, batch_size=16)
 
     print('Dataloaders done')
 
@@ -94,4 +94,11 @@ if __name__ == '__main__':
             best_acc = val_loss
             print('Model saved!')
 
+# ЭТОТ КРЕТИН НАЧАЛ ОБУЧАТЬСЯ, 2:28 НОЧИ Я ТОГО ВСЕ
+# ЕСЛИ У МЕНЯ ЗАБЬЕТСЯ ПАМЯТЬ НА КОМПЕ ОТ СОХРАНЕННЫХ МОДЕЛЕЙ Я ВЗОРВУСЬ НАХУЙ
+# Я МАНАЛ ФИКСИТЬ БАГИ, ТАК ЕЩЁ И ГАЙД БЫЛ С ЛЕГАСИ КОДОМ, КОТОРЫЙ ПЕРЕПИСЫВАТЬ ПРИШЛОСЬ
+# А БЕЗ ВАРНИНГОВ ОНО ЕЩЁ И НЕ ЗАПУСТИЛОСЬ А ВРЕМЕНИ НА ФИКС НЕТ
+# так ещё и оказалось, я не могу быстро проверить обучается он или нет, тк у меня на видюхе на большой batch_size памяти не хватает
+# и судя по всему на эпоху будет уходить охренеть сколько времени (tqdm не получилось успеть подкрутить к легаси коду из чертового гайда)
 
+# Выводы: индусы - нехорошие, я - говнокодер, моя видюха - RIP 04.04.2025 2:40, а обучаться я его оставляю на ночь даже не зная в порядке ли все
