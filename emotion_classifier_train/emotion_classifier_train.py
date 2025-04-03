@@ -36,11 +36,11 @@ if __name__ == '__main__':
         tensor = torch.tensor(df.to_numpy())
         targets_df = pd.DataFrame()
         for i in range(len(tensor)):
-            #targets_df._append({'emotion':torch.argmax(tensor[i]).item()}, ignore_index=True)
             targets_df = pd.concat([pd.DataFrame([torch.argmax(tensor[i]).item()]), targets_df], ignore_index=True)
 
         return targets_df
     '''
+    # Я искренне извинясь перед всеми богами мира за говнокодерство свыше, это единичное недоразумение вызванное случайным стечением обстоятельств и не было написанно мной
 
     ### Обучаем + сохраняем результат (модель + веса) - нихрена он не обучился
     train_data = EmotionDataset(train_df.loc[:, 'ru_text'].to_numpy(),train_df.iloc[:, 2:8].to_numpy(),tokenizer, max_len)    #анекдот дня: заходит как-то iloc и loc в бар
