@@ -1,19 +1,22 @@
 import torch
 import torch.nn as nn
 import numpy as np
+from tqdm import tqdm
 
 # 1 эпоха обучения
 def train_epoch(model, optimizer, scheduler, loss_func, data_loader, device):
-
     model = model.train()
 
     losses = []
     correct_predictions = 0
 
-    for d in data_loader:
+    train_tqdm = tqdm(data_loader, leave=True)
+
+    for d in train_tqdm:
         input_ids = d["input_ids"].to(device)
         attention_mask = d["attention_mask"].to(device)
         targets = d["targets"].to(device)
+
 
         outputs = model(
             input_ids=input_ids,
@@ -32,6 +35,7 @@ def train_epoch(model, optimizer, scheduler, loss_func, data_loader, device):
         optimizer.step()
         scheduler.step()
         optimizer.zero_grad()
+
 
     return correct_predictions.double() / len(data_loader), np.mean(losses)
 

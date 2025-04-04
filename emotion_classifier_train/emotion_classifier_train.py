@@ -1,7 +1,5 @@
 import os
 import pandas as pd
-import numpy as np
-from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.utils.data as data
@@ -13,7 +11,9 @@ from NN_class import EmotionClassifier
 from train_funcs import train_epoch, valid_model
 
 if __name__ == '__main__':
-    os.chdir('D:/NCUS_v_0.0001-Chaihana-branch/emotion_classifier_train')
+    mac_path = '/Users/atlas/Downloads/NCUS_v_0.0001-Chaihana-branch/emotion_classifier_train'
+    pc_path = 'D:/NCUS_v_0.0001-Chaihana-branch/emotion_classifier_train'
+    os.chdir(mac_path)
 
     print('Changed dir')
 
@@ -76,6 +76,7 @@ if __name__ == '__main__':
     #Запуск процесса обучения
     for epoch in range(epochs):
         print(f'\nEpoch {epoch+1}\n------------')
+
         train_acc, loss_mean = train_epoch(model, optimizer, scheduler,
                                 loss_func, train_dataloader, device)
         print(f'Epoch[{epoch+1}/{epochs}] train_acc={train_acc} loss_mean={loss_mean}')
