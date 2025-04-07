@@ -45,8 +45,11 @@ def valid_model(model, dataloader, loss_func, device):
     losses = []
     correct_predictions = 0
 
+
+    val_tqdm = tqdm(dataloader, leave = True)
+
     with torch.no_grad():
-        for d in dataloader:
+        for d in val_tqdm:
             input_ids = d["input_ids"].to(device)
             attention_mask = d["attention_mask"].to(device)
             targets = d["targets"].to(device)
