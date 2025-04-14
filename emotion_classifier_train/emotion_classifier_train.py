@@ -13,13 +13,13 @@ from train_funcs import train_epoch, valid_model
 if __name__ == '__main__':
     mac_path = '/Users/atlas/Downloads/NCUS_v_0.0001-Chaihana-branch/emotion_classifier_train'
     pc_path = 'D:/NCUS_v_0.0001-Chaihana-branch/emotion_classifier_train'
-    os.chdir(mac_path)
+    os.chdir(pc_path)
 
     print('Changed dir')
 
     # Загружаем датасет - как же я его манал
-    train_df = pd.read_csv('train_splitted.csv')
-    val_df = pd.read_csv('val_splitted.csv')
+    train_df = pd.read_csv('train111.csv')
+    val_df = pd.read_csv('val111.csv')
 
     print('CSV loaded')
 
@@ -44,10 +44,10 @@ if __name__ == '__main__':
 
     ### Обучаем + сохраняем результат (модель + веса) - нихрена он не обучился
     train_data = EmotionDataset(train_df.loc[:, 'ru_text'].to_numpy(),train_df.iloc[:, 2:8].to_numpy(),tokenizer, max_len)    #анекдот дня: заходит как-то iloc и loc в бар
-    train_dataloader = data.DataLoader(train_data, batch_size=64)           # iloc говорит loc'у: "биба я название столбца не чувствую"
+    train_dataloader = data.DataLoader(train_data, batch_size=90)                                       # iloc говорит loc'у: "биба я название столбца не чувствую"
                                                                                                         # а loc ему в ответ "боба у тебя его нет"
     val_data = EmotionDataset(val_df.loc[:, 'ru_text'].to_numpy(),val_df.iloc[:, 2:8].to_numpy(),tokenizer, max_len)
-    val_dataloader = data.DataLoader(val_data, batch_size=16)
+    val_dataloader = data.DataLoader(val_data, batch_size=90)
 
     print('Dataloaders done')
 
@@ -60,6 +60,7 @@ if __name__ == '__main__':
     best_acc = 100000
 
     model = EmotionClassifier(n_classes=6).to(device)
+    model = model.load_state_dict(torch.load('models/emotion_classifier_epoch[1].tar')[1])
 
     print('Model object created')
 
@@ -88,13 +89,13 @@ if __name__ == '__main__':
         print(f'Epoch[{epoch + 1}/{epochs}] val_acc={val_acc} val_loss={val_loss}')
 
         if val_loss<best_acc:
-            save_data = [model, model.state_dict(),
+            save_data = [model.to(torch.device('cpu')), model.to(torch.device('cpu')).state_dict(),
                          {'model_train_acc':train_acc, 'model_train_loss_mean':loss_mean,
                           'model_valid_acc':val_acc, 'model_valid_loss':val_loss}]
             torch.save(save_data, f=f'models/emotion_classifier_epoch[{epoch+1}].tar')
             best_acc = val_loss
             print('Model saved!')
-
+        model.to(device)
 # ЭТОТ КРЕТИН НАЧАЛ ОБУЧАТЬСЯ, 2:28 НОЧИ Я ТОГО ВСЕ
 # ЕСЛИ У МЕНЯ ЗАБЬЕТСЯ ПАМЯТЬ НА КОМПЕ ОТ СОХРАНЕННЫХ МОДЕЛЕЙ Я ВЗОРВУСЬ НАХУЙ
 # Я МАНАЛ ФИКСИТЬ БАГИ, ТАК ЕЩЁ И ГАЙД БЫЛ С ЛЕГАСИ КОДОМ, КОТОРЫЙ ПЕРЕПИСЫВАТЬ ПРИШЛОСЬ

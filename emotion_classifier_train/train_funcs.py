@@ -11,6 +11,8 @@ def train_epoch(model, optimizer, scheduler, loss_func, data_loader, device):
     correct_predictions = 0
 
     train_tqdm = tqdm(data_loader, leave=True)
+    loss_mean = 0
+    lm_count = 0
 
     for d in train_tqdm:
         input_ids = d["input_ids"].to(device)
@@ -36,6 +38,10 @@ def train_epoch(model, optimizer, scheduler, loss_func, data_loader, device):
         scheduler.step()
         optimizer.zero_grad()
 
+        lm_count += 1
+        loss_mean = 1/lm_count * loss.item() + (1 - 1/lm_count) * loss_mean
+        train_tqdm.set_description(f"loss_mean={loss_mean:.3f}")
+
 
     return correct_predictions.double() / len(data_loader), np.mean(losses)
 
@@ -45,11 +51,8 @@ def valid_model(model, dataloader, loss_func, device):
     losses = []
     correct_predictions = 0
 
-
-    val_tqdm = tqdm(dataloader, leave = True)
-
     with torch.no_grad():
-        for d in val_tqdm:
+        for d in dataloader:
             input_ids = d["input_ids"].to(device)
             attention_mask = d["attention_mask"].to(device)
             targets = d["targets"].to(device)
