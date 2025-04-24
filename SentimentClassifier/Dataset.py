@@ -1,32 +1,29 @@
 import re
+import pandas as pd
 import torch
 import torch.utils.data as data
+import numpy as np
 
 class SentimentDataset(data.Dataset):
-    def __init__(self, path, navec_emb, prev_words=3):
-        self.prev_words = prev_words
+    def __init__(self, path, navec_emb):
         self.navec_emb = navec_emb
 
-        with open(path, 'r', encoding='utf-8') as f:
-            self.text = f.read()
-            self.text = self.text.replace('\ufeff', '')  # убираем первый невидимый символ
-            self.text = self.text.replace('\n', ' ')
-            self.text = re.sub(r'[^А-яA-z- ]', '', self.text)  # удаляем все неразрешенные символы
-
-        self.words = self.text.lower().split()
-        self.words = [word for word in self.words if word in self.navec_emb]  # оставляем слова, которые есть в словаре
-        vocab = set(self.words)
-
-        self.int_to_word = dict(enumerate(vocab))
-        self.word_to_int = {b: a for a, b in self.int_to_word.items()}
-        self.vocab_size = len(vocab)
+        self.data = pd.read_csv(path)
+        self.len = len(self.data)
 
     def __getitem__(self, item):
-        _data = torch.vstack([torch.tensor(self.navec_emb[self.words[x]]) for x in range(item, item+self.prev_words)])
-        word = self.words[item+self.prev_words]
-        t = self.word_to_int[word]
+        self.data.iloc[item, 0:1] = re.sub(r'[^А-яA-z- ]', '',
+                                 str(self.data.iloc[item, 0]).replace('\ufeff', '').replace('\n', ' ')).lower()
+        words = [word for word in str(self.data.iloc[item, 0:1]).split(' ') if word in self.navec_emb]
+        text = torch.vstack([torch.tensor(self.navec_emb[word]) for word in words])
+        '''
+        out_text = torch.zeros(128, 300)
+        out_text[..., :len(words), :300] = text
+        '''
 
-        return _data, t
+
+        label = torch.from_numpy(self.data.iloc[item, 1:29].to_numpy(dtype='float32'))
+        return text, label
 
     def __len__(self):
-        return len(self.words) - 1 - self.prev_words
+        return self.len
