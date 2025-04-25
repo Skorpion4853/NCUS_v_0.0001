@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from click import prompt
 
-from funcs import *
+from funcs_torch import *
 from nltk.tokenize import word_tokenize
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import numpy as np
@@ -50,8 +50,11 @@ while True:
 
     # пред-обработка данных для прогнозирования эмоции
     emot_text = re.sub(r'[^А-яA-z- ]', '', str(neuro_answ).replace('\ufeff', '').replace('\n', ' ')).lower()
-    words = [word for word in str(emot_text).split(' ') if word in navec_emb]
-    emot_input = torch.vstack([torch.tensor(navec_emb[word]) for word in words])
+    try:
+        words = [word for word in str(emot_text).split(' ') if word in navec_emb]
+        emot_input = torch.vstack([torch.tensor(navec_emb[word]) for word in words])
+    except:
+        print('empty tensor! or another error xD')
 
     # Прогназирование эмоции
     with torch.no_grad():
@@ -59,10 +62,21 @@ while True:
         pred = torch.argmax(torch.softmax(out, 0)).item()
     asyncio.run(trigger(myvts, pred))
 
+    hotkey_list = ['admiration','amusement','anger',
+                   'annoyance','approval','caring',
+                   'confusion','curiosity','desire',
+                   'disappointment','disapproval','disgust',
+                   'embarrassment','excitement','fear',
+                   'gratitude','grief','joy',
+                   'love','nervousness','optimism',
+                   'pride','realization','relief',
+                   'remorse','sadness','surprise',
+                   'neutral']
+
     # Озвучивание ответа
     print(neuro_answ)
     engine.say(neuro_answ)
     engine.runAndWait()
-    print(f'emotion >> {pred}')
+    print(f'emotion >> {pred} / {hotkey_list[pred]}')
     print("====================")
 

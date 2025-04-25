@@ -1,9 +1,6 @@
 from pymystem3 import Mystem
 import torch
 import transformers
-import tensorflow as tf
-import pickle
-from nltk.corpus import stopwords
 import pyttsx3
 
 async def connect_auth(myvts):
@@ -42,7 +39,7 @@ def load_models():
     t5_tokenizer = transformers.GPT2Tokenizer.from_pretrained("SiberiaSoft/SiberianPersonaFred-2")
     t5_model = transformers.T5ForConditionalGeneration.from_pretrained("SiberiaSoft/SiberianPersonaFred-2")
 
-    emot_model_checkpoint = torch.load('models/sentiment_classifier_GRU_epoch[6].tar',weights_only=False)
+    emot_model_checkpoint = torch.load('models/sentiment_classifier_GRU_epoch[31].tar',weights_only=False)
     emot_model = emot_model_checkpoint['model']
     emot_model.load_state_dict(emot_model_checkpoint['weights'])
     navec_emb = emot_model_checkpoint['navec']
